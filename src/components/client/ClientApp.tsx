@@ -14,6 +14,34 @@ const ClientApp = () => {
   const [selectedLocation, setSelectedLocation] = useState<{ lat: number; lng: number; address: string } | null>(null);
   const [deliveryType, setDeliveryType] = useState<'instant' | 'scheduled'>('instant');
   const [schedule, setSchedule] = useState<{ date: string; time: string; notes?: string } | null>(null);
+  const [parcelImages, setParcelImages] = useState<File[]>([]);
+  const [truckImages, setTruckImages] = useState<File[]>([]);
+
+  const handleSubmit = () => {
+    if (!selectedLocation) {
+      alert('Please select a location');
+      return;
+    }
+
+    if (parcelImages.length === 0) {
+      alert('Please upload at least one parcel image');
+      return;
+    }
+
+    if (deliveryType === 'scheduled' && !schedule) {
+      alert('Please select a delivery schedule');
+      return;
+    }
+
+    // Handle form submission
+    console.log({
+      location: selectedLocation,
+      deliveryType,
+      schedule,
+      parcelImages,
+      truckImages
+    });
+  };
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -83,22 +111,25 @@ const ClientApp = () => {
           {/* Right Column */}
           <div className="space-y-8">
             {/* Parcel Images */}
-            <ImageGallery type="parcel" images={[]} />
+            <ImageGallery
+              type="parcel"
+              images={parcelImages}
+              onImagesChange={setParcelImages}
+              maxImages={3}
+            />
 
             {/* Truck Images */}
-            <ImageGallery type="truck" images={[]} />
+            <ImageGallery
+              type="truck"
+              images={truckImages}
+              onImagesChange={setTruckImages}
+              maxImages={3}
+            />
 
             {/* Submit Button */}
             <button
               className="w-full py-4 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 transition-colors"
-              onClick={() => {
-                // Handle submission
-                console.log({
-                  location: selectedLocation,
-                  deliveryType,
-                  schedule,
-                });
-              }}
+              onClick={handleSubmit}
             >
               Request Delivery
             </button>
