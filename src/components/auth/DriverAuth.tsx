@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Eye, EyeOff, Truck, Phone, Mail, User, Lock, Upload, Camera, MapPin } from 'lucide-react';
+import Logo from '../common/Logo';
 
 const DriverAuth = () => {
   const navigate = useNavigate();
@@ -57,20 +58,23 @@ const DriverAuth = () => {
       {/* Header */}
       <div className="bg-white/80 backdrop-blur-lg shadow-sm">
         <div className="max-w-4xl mx-auto px-6 py-4">
-          <div className="flex items-center">
-            <button
-              onClick={() => navigate('/')}
-              className="mr-4 p-2 hover:bg-cyan-100 rounded-full transition-colors"
-            >
-              <ArrowLeft className="h-6 w-6 text-gray-600" />
-            </button>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center">
+              <button
+                onClick={() => navigate('/')}
+                className="mr-4 p-2 hover:bg-cyan-100 rounded-full transition-colors"
+              >
+                <ArrowLeft className="h-6 w-6 text-gray-600" />
+              </button>
+              <Logo size="md" showText={true} />
+            </div>
             <div className="flex items-center">
               <div className="bg-cyan-100 p-2 rounded-lg mr-3">
                 <Truck className="h-6 w-6 text-cyan-600" />
               </div>
               <div>
-                <h1 className="text-2xl font-bold text-gray-800">Driver Portal</h1>
-                <p className="text-gray-600">Start your earning journey</p>
+                <h1 className="text-xl font-bold text-gray-800">Driver Portal</h1>
+                <p className="text-gray-600 text-sm">Start your earning journey</p>
               </div>
             </div>
           </div>

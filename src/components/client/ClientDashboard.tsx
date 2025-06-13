@@ -1,6 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Package, Plus, Clock, MapPin, Star, ArrowLeft } from 'lucide-react';
+import Logo from '../common/Logo';
 
 const ClientDashboard = () => {
   const navigate = useNavigate();
@@ -39,10 +40,7 @@ const ClientDashboard = () => {
               >
                 <ArrowLeft className="h-6 w-6 text-gray-600" />
               </button>
-              <div>
-                <h1 className="text-2xl font-bold text-gray-800">Welcome back!</h1>
-                <p className="text-gray-600">Ready to send your cargo?</p>
-              </div>
+              <Logo size="md" showText={true} />
             </div>
             <div className="flex items-center space-x-4">
               <div className="bg-blue-100 p-2 rounded-full">
@@ -54,6 +52,12 @@ const ClientDashboard = () => {
       </div>
 
       <div className="max-w-6xl mx-auto px-4 py-8">
+        {/* Welcome Section */}
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-gray-800 mb-2">Welcome back!</h1>
+          <p className="text-gray-600">Ready to send your cargo?</p>
+        </div>
+
         {/* Quick Actions */}
         <div className="mb-8">
           <h2 className="text-xl font-semibold text-gray-800 mb-4">Quick Actions</h2>

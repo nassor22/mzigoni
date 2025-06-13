@@ -1,17 +1,18 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Package, Truck } from 'lucide-react';
+import Logo from './Logo';
 
 const RoleSelection = () => {
   const navigate = useNavigate();
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-emerald-400 via-teal-500 to-cyan-600">
-      {/* Header */}
-      <div className="pt-20 pb-16 text-center">
+      {/* Header with Logo */}
+      <div className="pt-12 pb-16 text-center">
         <div className="bg-white/20 backdrop-blur-lg rounded-3xl p-8 mx-auto max-w-md mb-12">
-          <h1 className="text-4xl font-bold text-white mb-2">mziGO</h1>
-          <p className="text-emerald-100 text-lg">Transportation Made Easy</p>
+          <Logo size="xl" showText={true} className="justify-center mb-4" />
+          <p className="text-emerald-100 text-lg">Choose your role to get started</p>
         </div>
       </div>
 
@@ -50,7 +51,7 @@ const RoleSelection = () => {
 
       {/* Footer */}
       <div className="text-center mt-20 pb-8">
-        <p className="text-white/80">© 2024 mziGO. All rights reserved.</p>
+        <p className="text-white/80">© 2025 mziGO. All rights reserved.</p>
       </div>
     </div>
   );

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Truck, DollarSign, Clock, Star, Menu, X, Bell, Settings, LogOut } from 'lucide-react';
+import Logo from '../common/Logo';
 
 const DriverDashboard = () => {
   const navigate = useNavigate();
@@ -17,18 +18,19 @@ const DriverDashboard = () => {
       <div className="bg-white shadow-sm backdrop-blur-lg bg-opacity-90 sticky top-0 z-10">
         <div className="max-w-4xl mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
+            <Logo size="md" showText={true} />
             <div className="flex items-center space-x-4">
-              <img
-                src="/path-to-driver-photo.jpg"
-                alt="Driver"
-                className="h-10 w-10 rounded-full"
-              />
-              <div>
-                <h1 className="text-lg font-semibold text-gray-800">John Doe</h1>
-                <p className="text-sm text-gray-600">Driver ID: DRV123456</p>
+              <div className="flex items-center space-x-4">
+                <img
+                  src="https://images.pexels.com/photos/1681010/pexels-photo-1681010.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&dpr=2"
+                  alt="Driver"
+                  className="h-10 w-10 rounded-full object-cover"
+                />
+                <div>
+                  <h1 className="text-lg font-semibold text-gray-800">John Doe</h1>
+                  <p className="text-sm text-gray-600">Driver ID: DRV123456</p>
+                </div>
               </div>
-            </div>
-            <div className="flex items-center space-x-4">
               <button
                 onClick={() => setShowMenu(!showMenu)}
                 className="p-2 hover:bg-gray-100 rounded-full"

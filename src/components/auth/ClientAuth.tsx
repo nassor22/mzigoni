@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Eye, EyeOff, Package, Phone, Mail, User, Lock } from 'lucide-react';
+import Logo from '../common/Logo';
 
 const ClientAuth = () => {
   const navigate = useNavigate();
@@ -31,20 +32,23 @@ const ClientAuth = () => {
       {/* Header */}
       <div className="bg-white/80 backdrop-blur-lg shadow-sm">
         <div className="max-w-4xl mx-auto px-6 py-4">
-          <div className="flex items-center">
-            <button
-              onClick={() => navigate('/')}
-              className="mr-4 p-2 hover:bg-emerald-100 rounded-full transition-colors"
-            >
-              <ArrowLeft className="h-6 w-6 text-gray-600" />
-            </button>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center">
+              <button
+                onClick={() => navigate('/')}
+                className="mr-4 p-2 hover:bg-emerald-100 rounded-full transition-colors"
+              >
+                <ArrowLeft className="h-6 w-6 text-gray-600" />
+              </button>
+              <Logo size="md" showText={true} />
+            </div>
             <div className="flex items-center">
               <div className="bg-emerald-100 p-2 rounded-lg mr-3">
                 <Package className="h-6 w-6 text-emerald-600" />
               </div>
               <div>
-                <h1 className="text-2xl font-bold text-gray-800">Client Portal</h1>
-                <p className="text-gray-600">Send cargo with confidence</p>
+                <h1 className="text-xl font-bold text-gray-800">Client Portal</h1>
+                <p className="text-gray-600 text-sm">Send cargo with confidence</p>
               </div>
             </div>
           </div>
