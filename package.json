@@ -13,6 +13,7 @@
     "@capacitor/android": "^7.3.0",
     "@capacitor/core": "^7.3.0",
     "@googlemaps/js-api-loader": "^1.16.2",
+    "@react-google-maps/api": "^2.20.6",
     "@types/google.maps": "^3.55.3",
     "lucide-react": "^0.294.0",
     "react": "^18.2.0",

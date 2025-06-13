@@ -1,217 +1,142 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { Loader } from '@googlemaps/js-api-loader';
+import React, { useState, useEffect, useCallback } from 'react';
+import { GoogleMap, LoadScript, Marker, InfoWindow } from '@react-google-maps/api';
+import { Search } from 'lucide-react';
 
-interface MapComponentProps {
-  onLocationSelect?: (location: { lat: number; lng: number; address: string }) => void;
-  initialLocation?: { lat: number; lng: number };
-  markers?: Array<{ lat: number; lng: number; title?: string }>;
-  height?: string;
-  width?: string;
+interface Location {
+  lat: number;
+  lng: number;
+  address: string;
 }
 
-const MapComponent: React.FC<MapComponentProps> = ({
-  onLocationSelect,
-  initialLocation = { lat: -6.7924, lng: 39.2083 }, // Default to Dar es Salaam
-  markers = [],
-  height = '400px',
-  width = '100%'
-}) => {
-  const mapRef = useRef<HTMLDivElement>(null);
+interface MapComponentProps {
+  onLocationSelect: (location: Location) => void;
+  height?: string;
+}
+
+const MapComponent: React.FC<MapComponentProps> = ({ onLocationSelect, height = '400px' }) => {
   const [map, setMap] = useState<google.maps.Map | null>(null);
-  const [geocoder, setGeocoder] = useState<google.maps.Geocoder | null>(null);
+  const [marker, setMarker] = useState<google.maps.LatLng | null>(null);
+  const [searchBox, setSearchBox] = useState<google.maps.places.SearchBox | null>(null);
+  const [selectedLocation, setSelectedLocation] = useState<Location | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [selectedMarker, setSelectedMarker] = useState<google.maps.Marker | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
-    const initMap = async () => {
-      const loader = new Loader({
-        apiKey: 'AIzaSyCuPxmZhTN2wXCkICcuYSzAe_4HTWsS-38',
-        version: 'weekly',
-        libraries: ['places', 'geocoding']
-      });
+  const defaultCenter = {
+    lat: -6.7924, // Default to Dar es Salaam
+    lng: 39.2083,
+  };
 
-      try {
-        const google = await loader.load();
-        if (mapRef.current) {
-          const mapInstance = new google.maps.Map(mapRef.current, {
-            center: initialLocation,
-            zoom: 13,
-            mapTypeControl: true,
-            streetViewControl: true,
-            fullscreenControl: true,
-            zoomControl: true,
-            styles: [
-              {
-                featureType: 'poi',
-                elementType: 'labels',
-                stylers: [{ visibility: 'off' }]
-              }
-            ]
-          });
+  const mapContainerStyle = {
+    width: '100%',
+    height: height,
+  };
 
-          setMap(mapInstance);
-          setGeocoder(new google.maps.Geocoder());
+  const onMapLoad = useCallback((map: google.maps.Map) => {
+    setMap(map);
+    setIsLoading(false);
+  }, []);
 
-          // Add click listener for location selection
-          if (onLocationSelect) {
-            mapInstance.addListener('click', async (e: google.maps.MapMouseEvent) => {
-              if (e.latLng && geocoder) {
-                try {
-                  // Remove previous marker if exists
-                  if (selectedMarker) {
-                    selectedMarker.setMap(null);
-                  }
+  const onSearchBoxLoad = useCallback((ref: google.maps.places.SearchBox) => {
+    setSearchBox(ref);
+  }, []);
 
-                  // Create new marker
-                  const marker = new google.maps.Marker({
-                    position: e.latLng,
-                    map: mapInstance,
-                    animation: google.maps.Animation.DROP,
-                    draggable: true
-                  });
-
-                  setSelectedMarker(marker);
-
-                  // Add drag end listener
-                  marker.addListener('dragend', async (event: google.maps.MapMouseEvent) => {
-                    if (event.latLng) {
-                      const result = await geocoder.geocode({
-                        location: event.latLng
-                      });
-
-                      if (result.results[0]) {
-                        onLocationSelect({
-                          lat: event.latLng.lat(),
-                          lng: event.latLng.lng(),
-                          address: result.results[0].formatted_address
-                        });
-                      }
-                    }
-                  });
-
-                  const result = await geocoder.geocode({
-                    location: e.latLng
-                  });
-
-                  if (result.results[0]) {
-                    onLocationSelect({
-                      lat: e.latLng.lat(),
-                      lng: e.latLng.lng(),
-                      address: result.results[0].formatted_address
-                    });
-                  }
-                } catch (error) {
-                  console.error('Geocoding error:', error);
-                  setError('Error getting location details. Please try again.');
-                }
-              }
-            });
-          }
-
-          // Add markers if provided
-          markers.forEach(marker => {
-            new google.maps.Marker({
-              position: { lat: marker.lat, lng: marker.lng },
-              map: mapInstance,
-              title: marker.title
-            });
-          });
-
-          // Add search box
-          const input = document.createElement('input');
-          input.className = 'controls';
-          input.placeholder = 'Search for a location';
-          input.style.cssText = `
-            margin-top: 10px;
-            margin-left: 10px;
-            padding: 8px 12px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            width: 200px;
-            font-size: 14px;
-          `;
-
-          const searchBox = new google.maps.places.SearchBox(input);
-          mapInstance.controls[google.maps.ControlPosition.TOP_LEFT].push(input);
-
-          // Bias the SearchBox results towards current map's viewport
-          mapInstance.addListener('bounds_changed', () => {
-            searchBox.setBounds(mapInstance.getBounds()!);
-          });
-
-          // Listen for the event fired when the user selects a prediction
-          searchBox.addListener('places_changed', () => {
-            const places = searchBox.getPlaces();
-
-            if (places.length === 0) {
-              return;
-            }
-
-            const place = places[0];
-            if (!place.geometry || !place.geometry.location) {
-              return;
-            }
-
-            // If the place has a geometry, then present it on a map
-            if (place.geometry.viewport) {
-              mapInstance.fitBounds(place.geometry.viewport);
-            } else {
-              mapInstance.setCenter(place.geometry.location);
-              mapInstance.setZoom(17);
-            }
-
-            // Add marker for the selected place
-            if (selectedMarker) {
-              selectedMarker.setMap(null);
-            }
-
-            const marker = new google.maps.Marker({
-              map: mapInstance,
-              position: place.geometry.location,
-              animation: google.maps.Animation.DROP,
-              draggable: true
-            });
-
-            setSelectedMarker(marker);
-
-            if (onLocationSelect) {
-              onLocationSelect({
-                lat: place.geometry.location.lat(),
-                lng: place.geometry.location.lng(),
-                address: place.formatted_address || ''
-              });
-            }
-          });
+  const onPlacesChanged = useCallback(() => {
+    if (searchBox) {
+      const places = searchBox.getPlaces();
+      if (places && places.length > 0) {
+        const place = places[0];
+        if (place.geometry && place.geometry.location) {
+          const location = {
+            lat: place.geometry.location.lat(),
+            lng: place.geometry.location.lng(),
+            address: place.formatted_address || '',
+          };
+          setSelectedLocation(location);
+          onLocationSelect(location);
+          map?.panTo(place.geometry.location);
+          setMarker(place.geometry.location);
         }
-      } catch (error) {
-        console.error('Error loading Google Maps:', error);
-        setError('Error loading map. Please refresh the page and try again.');
       }
-    };
+    }
+  }, [searchBox, map, onLocationSelect]);
 
-    initMap();
-  }, [initialLocation, markers, onLocationSelect]);
+  const handleMapClick = useCallback(
+    (event: google.maps.MapMouseEvent) => {
+      if (event.latLng) {
+        setMarker(event.latLng);
+        const geocoder = new google.maps.Geocoder();
+        geocoder.geocode(
+          { location: { lat: event.latLng.lat(), lng: event.latLng.lng() } },
+          (results, status) => {
+            if (status === 'OK' && results && results[0]) {
+              const location = {
+                lat: event.latLng!.lat(),
+                lng: event.latLng!.lng(),
+                address: results[0].formatted_address,
+              };
+              setSelectedLocation(location);
+              onLocationSelect(location);
+            } else {
+              setError('Could not find address for this location');
+            }
+          }
+        );
+      }
+    },
+    [onLocationSelect]
+  );
 
   return (
     <div className="relative">
-      <div
-        ref={mapRef}
-        style={{
-          height,
-          width,
-          borderRadius: '8px',
-          overflow: 'hidden',
-          boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
-        }}
-      />
       {error && (
-        <div className="absolute top-4 left-4 bg-red-100 border border-red-400 text-red-700 px-4 py-2 rounded">
+        <div className="absolute top-0 left-0 right-0 bg-red-100 text-red-700 p-2 text-sm z-10">
           {error}
         </div>
       )}
-      <div className="absolute top-4 left-4 bg-white p-2 rounded-lg shadow-md">
-        <p className="text-sm text-gray-600">Click or search to select a location</p>
+      <div className="relative">
+        <div className="absolute top-2 left-2 right-2 z-10">
+          <div className="relative">
+            <input
+              type="text"
+              placeholder="Search for a location..."
+              className="w-full px-4 py-2 pl-10 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-green-500 focus:border-green-500"
+              onFocus={() => setError(null)}
+            />
+            <Search className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
+          </div>
+        </div>
+        <LoadScript
+          googleMapsApiKey={process.env.REACT_APP_GOOGLE_MAPS_API_KEY || ''}
+          libraries={['places']}
+        >
+          <GoogleMap
+            mapContainerStyle={mapContainerStyle}
+            center={defaultCenter}
+            zoom={13}
+            onLoad={onMapLoad}
+            onClick={handleMapClick}
+            options={{
+              fullscreenControl: false,
+              streetViewControl: false,
+              mapTypeControl: false,
+            }}
+          >
+            {marker && <Marker position={marker} draggable onDragEnd={handleMapClick} />}
+            {selectedLocation && (
+              <InfoWindow position={marker!}>
+                <div className="p-2">
+                  <p className="text-sm font-medium">{selectedLocation.address}</p>
+                </div>
+              </InfoWindow>
+            )}
+          </GoogleMap>
+        </LoadScript>
       </div>
+      {isLoading && (
+        <div className="absolute inset-0 bg-white bg-opacity-75 flex items-center justify-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600"></div>
+        </div>
+      )}
     </div>
   );
 };
