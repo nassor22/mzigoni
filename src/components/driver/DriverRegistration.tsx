@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Upload, User, Car, CreditCard, CheckCircle } from 'lucide-react';
+import { ArrowLeft, Upload, User, Car, CreditCard, CheckCircle, MapPin } from 'lucide-react';
 
 const DriverRegistration = () => {
   const navigate = useNavigate();
@@ -10,19 +10,28 @@ const DriverRegistration = () => {
       fullName: '',
       phone: '',
       email: '',
-      password: ''
+      password: '',
+      currentLocation: {
+        latitude: '',
+        longitude: '',
+        address: ''
+      }
     },
     documents: {
       licenseNumber: '',
       licenseExpiry: '',
-      idNumber: ''
+      idNumber: '',
+      licensePhoto: null,
+      driverPhoto: null
     },
     vehicle: {
       type: '',
       make: '',
       model: '',
       year: '',
-      plateNumber: ''
+      plateNumber: '',
+      platePhoto: null,
+      truckPhotos: []
     },
     banking: {
       bankName: '',
@@ -141,7 +150,7 @@ const DriverRegistration = () => {
                     personalInfo: {...formData.personalInfo, phone: e.target.value}
                   })}
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                  placeholder="+1 (555) 123-4567"
+                  placeholder="+255 123 456 789"
                 />
               </div>
               <div>
@@ -173,6 +182,52 @@ const DriverRegistration = () => {
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
                   placeholder="Create a secure password"
                 />
+              </div>
+              <div className="md:col-span-2">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Current Location
+                </label>
+                <div className="flex items-center space-x-2">
+                  <input
+                    type="text"
+                    value={formData.personalInfo.currentLocation.address}
+                    onChange={(e) => setFormData({
+                      ...formData,
+                      personalInfo: {
+                        ...formData.personalInfo,
+                        currentLocation: {
+                          ...formData.personalInfo.currentLocation,
+                          address: e.target.value
+                        }
+                      }
+                    })}
+                    className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                    placeholder="Enter your current location"
+                  />
+                  <button
+                    onClick={() => {
+                      // Get current location using browser's geolocation API
+                      if (navigator.geolocation) {
+                        navigator.geolocation.getCurrentPosition((position) => {
+                          setFormData({
+                            ...formData,
+                            personalInfo: {
+                              ...formData.personalInfo,
+                              currentLocation: {
+                                latitude: position.coords.latitude.toString(),
+                                longitude: position.coords.longitude.toString(),
+                                address: '' // This would be populated by reverse geocoding
+                              }
+                            }
+                          });
+                        });
+                      }
+                    }}
+                    className="p-3 bg-green-600 text-white rounded-lg hover:bg-green-700"
+                  >
+                    <MapPin className="h-5 w-5" />
+                  </button>
+                </div>
               </div>
             </div>
           </div>
@@ -221,17 +276,37 @@ const DriverRegistration = () => {
               <div className="grid md:grid-cols-2 gap-6">
                 <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
                   <Upload className="h-8 w-8 text-gray-400 mx-auto mb-2" />
-                  <p className="text-gray-600 mb-2">Upload Driver's License</p>
-                  <button className="text-green-600 hover:text-green-700 font-medium">
+                  <p className="text-gray-600 mb-2">Upload Driver's License Photo</p>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => setFormData({
+                      ...formData,
+                      documents: {...formData.documents, licensePhoto: e.target.files?.[0]}
+                    })}
+                    className="hidden"
+                    id="licensePhoto"
+                  />
+                  <label htmlFor="licensePhoto" className="text-green-600 hover:text-green-700 font-medium cursor-pointer">
                     Choose File
-                  </button>
+                  </label>
                 </div>
                 <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
                   <Upload className="h-8 w-8 text-gray-400 mx-auto mb-2" />
-                  <p className="text-gray-600 mb-2">Upload National ID</p>
-                  <button className="text-green-600 hover:text-green-700 font-medium">
+                  <p className="text-gray-600 mb-2">Upload Driver's Photo</p>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => setFormData({
+                      ...formData,
+                      documents: {...formData.documents, driverPhoto: e.target.files?.[0]}
+                    })}
+                    className="hidden"
+                    id="driverPhoto"
+                  />
+                  <label htmlFor="driverPhoto" className="text-green-600 hover:text-green-700 font-medium cursor-pointer">
                     Choose File
-                  </button>
+                  </label>
                 </div>
               </div>
             </div>
@@ -325,24 +400,45 @@ const DriverRegistration = () => {
                     vehicle: {...formData.vehicle, plateNumber: e.target.value}
                   })}
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                  placeholder="ABC-1234"
+                  placeholder="Enter plate number"
                 />
               </div>
 
               <div className="grid md:grid-cols-2 gap-6">
                 <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
                   <Upload className="h-8 w-8 text-gray-400 mx-auto mb-2" />
-                  <p className="text-gray-600 mb-2">Upload Vehicle Photos</p>
-                  <button className="text-green-600 hover:text-green-700 font-medium">
-                    Choose Files
-                  </button>
+                  <p className="text-gray-600 mb-2">Upload License Plate Photo</p>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => setFormData({
+                      ...formData,
+                      vehicle: {...formData.vehicle, platePhoto: e.target.files?.[0]}
+                    })}
+                    className="hidden"
+                    id="platePhoto"
+                  />
+                  <label htmlFor="platePhoto" className="text-green-600 hover:text-green-700 font-medium cursor-pointer">
+                    Choose File
+                  </label>
                 </div>
                 <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
                   <Upload className="h-8 w-8 text-gray-400 mx-auto mb-2" />
-                  <p className="text-gray-600 mb-2">Upload Registration</p>
-                  <button className="text-green-600 hover:text-green-700 font-medium">
-                    Choose File
-                  </button>
+                  <p className="text-gray-600 mb-2">Upload Truck Photos (Multiple)</p>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    onChange={(e) => setFormData({
+                      ...formData,
+                      vehicle: {...formData.vehicle, truckPhotos: Array.from(e.target.files || [])}
+                    })}
+                    className="hidden"
+                    id="truckPhotos"
+                  />
+                  <label htmlFor="truckPhotos" className="text-green-600 hover:text-green-700 font-medium cursor-pointer">
+                    Choose Files
+                  </label>
                 </div>
               </div>
             </div>
