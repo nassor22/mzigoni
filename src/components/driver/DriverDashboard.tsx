@@ -98,7 +98,7 @@ const DriverDashboard = () => {
               </div>
               <div>
                 <p className="text-sm text-gray-600">Today's Earnings</p>
-                <p className="text-2xl font-semibold text-gray-800">$150.00</p>
+                <p className="text-2xl font-semibold text-gray-800">TZS 150,000</p>
               </div>
             </div>
           </div>
@@ -145,7 +145,7 @@ const DriverDashboard = () => {
                   </div>
                 </div>
                 <div className="text-right">
-                  <p className="font-medium text-gray-800">$25.00</p>
+                  <p className="font-medium text-gray-800">TZS 25,000</p>
                   <p className="text-sm text-gray-600">2 hours ago</p>
                 </div>
               </div>
