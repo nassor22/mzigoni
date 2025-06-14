@@ -1,55 +1,132 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, MapPin, Phone, MessageCircle, Clock, User, Truck, Star } from 'lucide-react';
+import { ArrowLeft, Phone, MessageCircle, Clock, User, Truck, Star } from 'lucide-react';
+import GoogleMapsComponent from '../common/GoogleMapsComponent';
+import LanguageSelector from '../common/LanguageSelector';
+import { useLanguage } from '../../hooks/useLanguage';
+import { getTranslation } from '../../utils/translations';
 
 const TrackingScreen = () => {
   const navigate = useNavigate();
-  const [status, setStatus] = useState('assigned'); // assigned, enroute, pickup, delivering, completed
+  const { language } = useLanguage();
+  const [status, setStatus] = useState('assigned');
+  const [driverLocation, setDriverLocation] = useState({ lat: -6.7924, lng: 39.2083 });
 
   const driver = {
     name: 'John Doe',
-    phone: '+1 (555) 123-4567',
+    phone: '+255 123 456 789',
     rating: 4.8,
     vehicle: 'Toyota Hiace',
-    plate: 'ABC-1234',
+    plate: 'T123 ABC',
     photo: 'https://images.pexels.com/photos/1681010/pexels-photo-1681010.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&dpr=2'
   };
 
+  const trip = {
+    pickup: { lat: -6.7924, lng: 39.2083, address: '123 Business District, Dar es Salaam' },
+    delivery: { lat: -6.8024, lng: 39.2183, address: '456 Residential Area, Dar es Salaam' }
+  };
+
   const statusSteps = [
-    { id: 'assigned', label: 'Driver Assigned', completed: true },
-    { id: 'enroute', label: 'En Route to Pickup', completed: status !== 'assigned' },
-    { id: 'pickup', label: 'Picking Up Cargo', completed: ['delivering', 'completed'].includes(status) },
-    { id: 'delivering', label: 'Delivering Cargo', completed: status === 'completed' },
-    { id: 'completed', label: 'Delivered', completed: status === 'completed' }
+    { 
+      id: 'assigned', 
+      label: language === 'en' ? 'Driver Assigned' : 'Dereva Amepangiwa', 
+      completed: true 
+    },
+    { 
+      id: 'enroute', 
+      label: language === 'en' ? 'En Route to Pickup' : 'Anakwenda Kuchukua', 
+      completed: status !== 'assigned' 
+    },
+    { 
+      id: 'pickup', 
+      label: language === 'en' ? 'Picking Up Cargo' : 'Anachukua Mizigo', 
+      completed: ['delivering', 'completed'].includes(status) 
+    },
+    { 
+      id: 'delivering', 
+      label: language === 'en' ? 'Delivering Cargo' : 'Anafikisha Mizigo', 
+      completed: status === 'completed' 
+    },
+    { 
+      id: 'completed', 
+      label: language === 'en' ? 'Delivered' : 'Imefikishwa', 
+      completed: status === 'completed' 
+    }
   ];
 
+  // Simulate driver movement
   useEffect(() => {
-    // Simulate status updates
+    const interval = setInterval(() => {
+      setDriverLocation(prev => ({
+        lat: prev.lat + (Math.random() - 0.5) * 0.001,
+        lng: prev.lng + (Math.random() - 0.5) * 0.001
+      }));
+    }, 5000);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  // Simulate status updates
+  useEffect(() => {
     const timer = setTimeout(() => {
       if (status === 'assigned') setStatus('enroute');
       else if (status === 'enroute') setStatus('pickup');
       else if (status === 'pickup') setStatus('delivering');
-    }, 5000);
+    }, 10000);
 
     return () => clearTimeout(timer);
   }, [status]);
 
+  const getMapMarkers = () => {
+    const markers = [
+      {
+        lat: trip.pickup.lat,
+        lng: trip.pickup.lng,
+        title: language === 'en' ? 'Pickup Location' : 'Mahali pa Kuchukua',
+        type: 'pickup' as const
+      },
+      {
+        lat: trip.delivery.lat,
+        lng: trip.delivery.lng,
+        title: language === 'en' ? 'Delivery Location' : 'Mahali pa Kufikisha',
+        type: 'delivery' as const
+      },
+      {
+        lat: driverLocation.lat,
+        lng: driverLocation.lng,
+        title: language === 'en' ? 'Driver Location' : 'Mahali pa Dereva',
+        type: 'driver' as const
+      }
+    ];
+
+    return markers;
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
+      {/* Language Selector */}
+      <div className="absolute top-6 right-6 z-10">
+        <LanguageSelector />
+      </div>
+
       {/* Header */}
       <div className="bg-white shadow-sm">
         <div className="max-w-4xl mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center">
               <button
-                onClick={() => navigate('/client')}
+                onClick={() => navigate('/client/dashboard')}
                 className="mr-4 p-2 hover:bg-gray-100 rounded-full transition-colors"
               >
                 <ArrowLeft className="h-6 w-6 text-gray-600" />
               </button>
               <div>
-                <h1 className="text-2xl font-bold text-gray-800">Track Delivery</h1>
-                <p className="text-gray-600">Trip #TRP-001</p>
+                <h1 className="text-2xl font-bold text-gray-800">
+                  {language === 'en' ? 'Track Delivery' : 'Fuatilia Uwasilishaji'}
+                </h1>
+                <p className="text-gray-600">
+                  {language === 'en' ? 'Trip #TRP-001' : 'Safari #TRP-001'}
+                </p>
               </div>
             </div>
           </div>
@@ -59,7 +136,9 @@ const TrackingScreen = () => {
       <div className="max-w-4xl mx-auto px-4 py-6 space-y-6">
         {/* Status Progress */}
         <div className="bg-white rounded-xl shadow-sm p-6">
-          <h2 className="text-lg font-semibold text-gray-800 mb-6">Delivery Status</h2>
+          <h2 className="text-lg font-semibold text-gray-800 mb-6">
+            {language === 'en' ? 'Delivery Status' : 'Hali ya Uwasilishaji'}
+          </h2>
           <div className="space-y-4">
             {statusSteps.map((step, index) => (
               <div key={step.id} className="flex items-center">
@@ -67,19 +146,21 @@ const TrackingScreen = () => {
                   step.completed 
                     ? 'bg-green-500 text-white' 
                     : status === step.id 
-                      ? 'bg-blue-500 text-white animate-pulse'
+                      ? 'bg-emerald-500 text-white animate-pulse'
                       : 'bg-gray-300 text-gray-600'
                 }`}>
                   {step.completed ? '✓' : index + 1}
                 </div>
                 <div className="flex-1">
                   <p className={`font-medium ${
-                    step.completed ? 'text-green-700' : status === step.id ? 'text-blue-700' : 'text-gray-600'
+                    step.completed ? 'text-green-700' : status === step.id ? 'text-emerald-700' : 'text-gray-600'
                   }`}>
                     {step.label}
                   </p>
                   {status === step.id && (
-                    <p className="text-sm text-blue-600">Current status</p>
+                    <p className="text-sm text-emerald-600">
+                      {language === 'en' ? 'Current status' : 'Hali ya sasa'}
+                    </p>
                   )}
                 </div>
               </div>
@@ -87,21 +168,30 @@ const TrackingScreen = () => {
           </div>
         </div>
 
-        {/* Map Placeholder */}
+        {/* Live Map */}
         <div className="bg-white rounded-xl shadow-sm p-6">
-          <h2 className="text-lg font-semibold text-gray-800 mb-4">Live Location</h2>
-          <div className="bg-gray-100 rounded-lg h-64 flex items-center justify-center">
-            <div className="text-center">
-              <MapPin className="h-12 w-12 text-gray-400 mx-auto mb-2" />
-              <p className="text-gray-600">Live map view</p>
-              <p className="text-sm text-gray-500">ETA: 15 minutes</p>
-            </div>
+          <h2 className="text-lg font-semibold text-gray-800 mb-4">
+            {language === 'en' ? 'Live Location' : 'Mahali pa Moja kwa Moja'}
+          </h2>
+          <GoogleMapsComponent
+            markers={getMapMarkers()}
+            height="400px"
+            showSearch={false}
+            trackingMode={true}
+            center={driverLocation}
+          />
+          <div className="mt-4 text-center">
+            <p className="text-sm text-gray-600">
+              {language === 'en' ? 'ETA: 15 minutes' : 'Muda wa Kuwasili: dakika 15'}
+            </p>
           </div>
         </div>
 
         {/* Driver Info */}
         <div className="bg-white rounded-xl shadow-sm p-6">
-          <h2 className="text-lg font-semibold text-gray-800 mb-4">Driver Information</h2>
+          <h2 className="text-lg font-semibold text-gray-800 mb-4">
+            {language === 'en' ? 'Driver Information' : 'Taarifa za Dereva'}
+          </h2>
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
               <img
@@ -134,27 +224,37 @@ const TrackingScreen = () => {
 
         {/* Trip Details */}
         <div className="bg-white rounded-xl shadow-sm p-6">
-          <h2 className="text-lg font-semibold text-gray-800 mb-4">Trip Details</h2>
+          <h2 className="text-lg font-semibold text-gray-800 mb-4">
+            {language === 'en' ? 'Trip Details' : 'Maelezo ya Safari'}
+          </h2>
           <div className="space-y-4">
             <div className="flex items-center space-x-3">
-              <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
+              <div className="w-3 h-3 bg-emerald-500 rounded-full"></div>
               <div>
-                <p className="font-medium text-gray-800">Pickup Location</p>
-                <p className="text-gray-600">123 Business District, Downtown</p>
+                <p className="font-medium text-gray-800">
+                  {language === 'en' ? 'Pickup Location' : 'Mahali pa Kuchukua'}
+                </p>
+                <p className="text-gray-600">{trip.pickup.address}</p>
               </div>
             </div>
             <div className="flex items-center space-x-3">
-              <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+              <div className="w-3 h-3 bg-red-500 rounded-full"></div>
               <div>
-                <p className="font-medium text-gray-800">Delivery Location</p>
-                <p className="text-gray-600">456 Residential Area, Uptown</p>
+                <p className="font-medium text-gray-800">
+                  {language === 'en' ? 'Delivery Location' : 'Mahali pa Kufikisha'}
+                </p>
+                <p className="text-gray-600">{trip.delivery.address}</p>
               </div>
             </div>
             <div className="flex items-center space-x-3">
               <Clock className="h-5 w-5 text-gray-400" />
               <div>
-                <p className="font-medium text-gray-800">Estimated Delivery</p>
-                <p className="text-gray-600">Today, 3:30 PM</p>
+                <p className="font-medium text-gray-800">
+                  {language === 'en' ? 'Estimated Delivery' : 'Muda wa Kufikisha'}
+                </p>
+                <p className="text-gray-600">
+                  {language === 'en' ? 'Today, 3:30 PM' : 'Leo, 3:30 PM'}
+                </p>
               </div>
             </div>
           </div>
@@ -163,10 +263,10 @@ const TrackingScreen = () => {
         {/* Action Buttons */}
         <div className="flex space-x-4">
           <button className="flex-1 py-3 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition-colors font-medium">
-            Cancel Trip
+            {language === 'en' ? 'Cancel Trip' : 'Ghairi Safari'}
           </button>
-          <button className="flex-1 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium">
-            Contact Support
+          <button className="flex-1 py-3 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors font-medium">
+            {language === 'en' ? 'Contact Support' : 'Wasiliana na Msaada'}
           </button>
         </div>
       </div>

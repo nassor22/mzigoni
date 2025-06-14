@@ -4,47 +4,139 @@ A modern cargo transportation platform for Tanzania, connecting clients with rel
 
 ## Features
 
-- Real-time location tracking using Google Maps
-- Scheduled and instant delivery options
-- Driver verification with license and vehicle documentation
-- Secure payment processing
-- User-friendly interface for both clients and drivers
+- **Bilingual Support**: English and Swahili language options
+- **Real-time Location Tracking**: Google Maps integration for live tracking
+- **Modern UI**: Beautiful, production-ready interface with smooth animations
+- **Role-based Access**: Separate interfaces for clients and drivers
+- **Secure Authentication**: User registration and login system
+- **Driver Verification**: License and vehicle documentation upload
+- **Payment Integration**: Multiple payment options including mobile money
+- **Rating System**: Rate drivers and track service quality
 
-## Setup
+## Technology Stack
 
-1. Clone the repository
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
+- **Frontend**: React 18 with TypeScript
+- **Styling**: Tailwind CSS
+- **Icons**: Lucide React
+- **Maps**: Google Maps JavaScript API
+- **Mobile**: Capacitor for Android/iOS apps
+- **Build Tool**: Vite
 
-3. Create a `.env` file in the root directory with the following variables:
-   ```
-   VITE_GOOGLE_MAPS_API_KEY=your_google_maps_api_key_here
-   ```
+## Setup Instructions
 
-4. Get a Google Maps API key:
-   - Go to the [Google Cloud Console](https://console.cloud.google.com)
-   - Create a new project or select an existing one
-   - Enable the Maps JavaScript API and Places API
-   - Create credentials (API key)
-   - Add the API key to your `.env` file
+### 1. Clone and Install Dependencies
 
-5. Start the development server:
-   ```bash
-   npm run dev
-   ```
+```bash
+git clone <repository-url>
+cd mzigo
+npm install
+```
 
-## Building for Production
+### 2. Google Maps API Setup
+
+1. Go to the [Google Cloud Console](https://console.cloud.google.com)
+2. Create a new project or select an existing one
+3. Enable the following APIs:
+   - Maps JavaScript API
+   - Places API
+   - Geocoding API
+4. Create credentials (API key)
+5. Add your API key to the `.env` file:
+
+```env
+VITE_GOOGLE_MAPS_API_KEY=your_actual_api_key_here
+```
+
+### 3. Development Server
+
+```bash
+npm run dev
+```
+
+### 4. Building for Production
 
 ```bash
 npm run build
 ```
 
-## Technologies Used
+### 5. Mobile App Development
 
-- React
-- TypeScript
-- Tailwind CSS
-- Google Maps API
-- Vite
+For Android:
+```bash
+npm run build
+npx cap add android
+npx cap sync android
+npx cap open android
+```
+
+## Key Features Implemented
+
+### 🌍 Bilingual Support
+- English and Swahili language switching
+- Persistent language preference
+- Comprehensive translations for all UI elements
+
+### 🗺️ Google Maps Integration
+- Interactive map selection for pickup/delivery locations
+- Real-time driver tracking
+- Current location detection
+- Address search functionality
+- Custom markers for different location types
+
+### 🎨 Modern Design
+- Clean, professional interface
+- Smooth animations and transitions
+- Responsive design for all screen sizes
+- Apple-level design aesthetics
+- Consistent color scheme and typography
+
+### 📱 Mobile-First Approach
+- Touch-friendly interface
+- Optimized for mobile devices
+- Capacitor integration for native app features
+
+### 🚛 Driver Features
+- Driver registration with document upload
+- Online/offline status toggle
+- Trip management and tracking
+- Earnings dashboard
+
+### 📦 Client Features
+- Easy cargo booking flow
+- Real-time delivery tracking
+- Payment processing
+- Trip history and ratings
+
+## Project Structure
+
+```
+src/
+├── components/
+│   ├── auth/           # Authentication components
+│   ├── client/         # Client-specific components
+│   ├── driver/         # Driver-specific components
+│   └── common/         # Shared components
+├── hooks/              # Custom React hooks
+├── utils/              # Utility functions and translations
+└── assets/             # Images and static assets
+```
+
+## Environment Variables
+
+Create a `.env` file in the root directory:
+
+```env
+VITE_GOOGLE_MAPS_API_KEY=your_google_maps_api_key
+```
+
+## Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Test thoroughly
+5. Submit a pull request
+
+## License
+
+© 2025 mziGO. All rights reserved.

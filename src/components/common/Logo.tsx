@@ -6,12 +6,12 @@ interface LogoProps {
   className?: string;
 }
 
-const Logo: React.FC<LogoProps> = ({ size = 'md', showText = true, className = '' }) => {
+const Logo: React.FC<LogoProps> = ({ size = 'md', showText = false, className = '' }) => {
   const sizeClasses = {
-    sm: 'h-8 w-auto',
-    md: 'h-12 w-auto',
-    lg: 'h-16 w-auto',
-    xl: 'h-24 w-auto'
+    sm: 'h-8 w-8',
+    md: 'h-12 w-12',
+    lg: 'h-16 w-16',
+    xl: 'h-24 w-24'
   };
 
   const textSizeClasses = {
@@ -22,12 +22,14 @@ const Logo: React.FC<LogoProps> = ({ size = 'md', showText = true, className = '
   };
 
   return (
-    <div className={`flex items-center space-x-3 ${className}`}>
-      <img 
-        src="/src/assets/images/Capture.PNG" 
-        alt="mziGO Logo" 
-        className={sizeClasses[size]}
-      />
+    <div className={`flex items-center justify-center ${showText ? 'space-x-3' : ''} ${className}`}>
+      <div className={`${sizeClasses[size]} flex items-center justify-center`}>
+        <img 
+          src="/src/assets/images/mziGO-logo.png" 
+          alt="mziGO Logo" 
+          className="w-full h-full object-contain"
+        />
+      </div>
       {showText && (
         <div className="flex flex-col">
           <span className={`font-bold text-gray-800 ${textSizeClasses[size]}`}>
